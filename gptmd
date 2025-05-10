@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+PYTHONPATH="$HOME/.local/share" exec python3 -m gptmd-py "$@"
