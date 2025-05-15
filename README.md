@@ -5,8 +5,6 @@ Clone to ~/.local/share, move file and make it executable:
 ```
 git clone github.com/fsncps/gptmd.git ~/.local/share && my ~/.local/share/gptmd ~/.local/bin/ && chmod +x ~/.local/bin/gptmd
 ```
-Authorization token is automatically extracted for Librewolf, other browsers TBD.
-
 Then use with URL and threadname to save threadname.json and threadname.md, e.g.
 ```
 gptmd https://chatgpt.com/g/g-p-67ef5dxxxx interesting_convo
