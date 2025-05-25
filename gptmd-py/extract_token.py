@@ -27,30 +27,35 @@ def extract_tokens(db_path: Path) -> str:
     query = """
         SELECT name, value FROM moz_cookies
         WHERE host = '.chatgpt.com'
-          AND name IN ('__Secure-next-auth.session-token.0', '__Secure-next-auth.session-token.1')
+          AND name IN (
+              '__Secure-next-auth.session-token',
+              '__Secure-next-auth.session-token.0',
+              '__Secure-next-auth.session-token.1'
+          )
     """
     cursor.execute(query)
     rows = cursor.fetchall()
     conn.close()
 
     tokens = {name: value for name, value in rows}
-    try:
+
+    if '__Secure-next-auth.session-token' in tokens:
+        return tokens['__Secure-next-auth.session-token']
+    elif ('__Secure-next-auth.session-token.0' in tokens and
+          '__Secure-next-auth.session-token.1' in tokens):
         return tokens['__Secure-next-auth.session-token.0'] + tokens['__Secure-next-auth.session-token.1']
-    except KeyError as e:
-        raise RuntimeError(f"Missing token part: {e}")
+    else:
+        raise RuntimeError("No valid session token found in cookies")
 
 def main():
-    # Locate profile
     home = Path.home()
     profiles_ini = home / ".librewolf" / "profiles.ini"
     profile_path = find_default_profile(profiles_ini)
     full_profile_path = home / ".librewolf" / profile_path
 
-    # Copy DB and extract token
     db_copy = copy_sqlite_db(full_profile_path)
     combined_token = extract_tokens(db_copy)
 
-    # Save to token.txt in same dir as script
     script_dir = Path(__file__).resolve().parent
     output_file = script_dir / "token.txt"
     with open(output_file, "w") as f:
